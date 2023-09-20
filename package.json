@@ -4,11 +4,27 @@
   "description": "",
   "main": "index.js",
   "keywords": [],
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
   "author": "Meric Arda Eren",
   "license": "ISC",
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
     "commander": "^11.0.0",
     "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "eslintrc": "^1.0.6",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "prettier": "^3.0.3"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
