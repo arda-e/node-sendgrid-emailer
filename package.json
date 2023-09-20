@@ -6,6 +6,7 @@
   "keywords": [],
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "format": "prettier --write ."
   },
   "author": "Meric Arda Eren",
