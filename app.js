@@ -26,47 +26,45 @@ program.parse(process.argv);
 
 console.log(program.opts());
 
-// handle no email list path
-if (!program.opts().emailList) {
-  console.log('Please provide an email list path');
+try {
+  // handle no email list path
+  if (!program.opts().emailList) {
+    throw new Error('Please provide an email list path');
+  }
+
+  // handle no sender name
+  if (!program.opts().name) {
+    throw new Error('Please provide a sender name');
+  }
+
+  // handle no email subject
+  if (!program.opts().subject) {
+    throw new Error('Please provide an email subject');
+  }
+
+  // handle no sender email
+  if (!program.opts().from) {
+    throw new Error('Please provide a sender email');
+  }
+
+  // check if email is valid
+  if (!isEmailValid(program.opts().from)) {
+    throw new Error('Please provide a valid sender email');
+  }
+
+  sendEmail({
+    fromEmail: program.opts().from,
+    fromName: program.opts().name,
+    subject: program.opts().subject,
+    templatePath: program.opts().html,
+    text: program.opts().text,
+    attachmentPath: program.opts().attachment,
+    emailListPath: program.opts().emailList,
+  });
+  
+} catch (error) {
+  console.error(error.message);
   program.help();
   process.exit(1);
 }
 
-// check if email is valid
-if (!isEmailValid(program.opts().from)) {
-  console.log('Please provide a valid sender email');
-  program.help();
-  process.exit(1);
-}
-
-// handle no sender name
-if (!program.opts().name) {
-  console.log('Please provide a sender name');
-  program.help();
-  process.exit(1);
-}
-
-// handle no email subject
-if (!program.opts().subject) {
-  console.log('Please provide an email subject');
-  program.help();
-  process.exit(1);
-}
-
-// handle no sender email
-if (!program.opts().from) {
-  console.log('Please provide a sender email');
-  program.help();
-  process.exit(1);
-}
-
-sendEmail({
-  fromEmail: program.opts().from,
-  fromName: program.opts().name,
-  subject: program.opts().subject,
-  templatePath: program.opts().html,
-  text: program.opts().text,
-  attachmentPath: program.opts().attachment,
-  emailListPath: program.opts().emailList,
-});
