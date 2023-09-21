@@ -25,7 +25,6 @@ function addEmailContent(msg, templatePath, text) {
 }
 
 function addAttachment(msg, attachmentPath, attachmentType) {
-  if (attachmentPath) {
     const attachmentBuffer = fs.readFileSync(attachmentPath);
     const attachmentBase64 = attachmentBuffer.toString('base64');
     
@@ -42,7 +41,7 @@ function addAttachment(msg, attachmentPath, attachmentType) {
         contentId: 'myId',
       },
     ];
-  }
+  
 }
 
 function sendEmail({
@@ -73,7 +72,7 @@ function sendEmail({
     };
 
     addEmailContent(msg, templatePath, text);
-    addAttachment(msg, attachmentPath, attachmentType);
+    if (attachmentPath) addAttachment(msg, attachmentPath, attachmentType);
 
     sgMail
       .send(msg)
