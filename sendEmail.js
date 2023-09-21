@@ -1,6 +1,7 @@
-// sendEmail.js
+const path = require('path'); 
 const fs = require('fs');
 const sgMail = require('@sendgrid/mail');
+const { handleAttachmentType } = require('./utils');
 require('dotenv').config();
 
 // exit if sendgrid api key is not set
@@ -9,8 +10,40 @@ if (!process.env.SENDGRID_API_KEY) {
   process.exit(1);
 }
 
-// Set your SendGrid API key
+// Set SendGrid API key
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+function addEmailContent(msg, templatePath, text) {
+  if (templatePath) {
+    // Add HTML content if templatePath is provided
+    const emailHTML = fs.readFileSync(templatePath, 'utf-8');
+    msg.html = emailHTML;
+  } else if (text) {
+    // Use text content if HTML is not provided but text is
+    msg.text = text;
+  }
+}
+
+function addAttachment(msg, attachmentPath, attachmentType) {
+  if (attachmentPath) {
+    const attachmentBuffer = fs.readFileSync(attachmentPath);
+    const attachmentBase64 = attachmentBuffer.toString('base64');
+    
+    const attachmentName = path.basename(attachmentPath);
+    
+    const attachmentContentType = handleAttachmentType(attachmentType);
+    
+    msg.attachments = [
+      {
+        content: attachmentBase64,
+        filename: attachmentName,
+        type: attachmentContentType,
+        disposition: 'attachment',
+        contentId: 'myId',
+      },
+    ];
+  }
+}
 
 function sendEmail({
   fromEmail,
@@ -18,9 +51,11 @@ function sendEmail({
   subject,
   templatePath,
   attachmentPath,
+  attachmentType, 
   emailListPath,
   text,
 }) {
+
   const emails = fs
     .readFileSync(emailListPath, 'utf-8')
     .split('\n')
@@ -37,29 +72,8 @@ function sendEmail({
       subject: subject,
     };
 
-    if (templatePath) {
-      // Add HTML content if templatePath is provided
-      const emailHTML = fs.readFileSync(templatePath, 'utf-8');
-      msg.html = emailHTML;
-    } else if (text) {
-      // Use text content if HTML is not provided but text is
-      msg.text = text;
-    }
-
-    // Add attachment if attachmentPath is provided
-    if (attachmentPath) {
-      const attachmentBuffer = fs.readFileSync(attachmentPath);
-      const attachmentBase64 = attachmentBuffer.toString('base64');
-      msg.attachments = [
-        {
-          content: attachmentBase64,
-          filename: 'event.ics',
-          type: 'text/calendar',
-          disposition: 'attachment',
-          contentId: 'myId',
-        },
-      ];
-    }
+    addEmailContent(msg, templatePath, text);
+    addAttachment(msg, attachmentPath, attachmentType);
 
     sgMail
       .send(msg)

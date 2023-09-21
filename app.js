@@ -2,6 +2,8 @@
 
 const { Command } = require('commander');
 const sendEmail = require('./sendEmail');
+const { isEmailValid } = require('./utils');
+
 const program = new Command();
 
 program
@@ -27,6 +29,13 @@ console.log(program.opts());
 // handle no email list path
 if (!program.opts().emailList) {
   console.log('Please provide an email list path');
+  program.help();
+  process.exit(1);
+}
+
+// check if email is valid
+if (!isEmailValid(program.opts().from)) {
+  console.log('Please provide a valid sender email');
   program.help();
   process.exit(1);
 }
